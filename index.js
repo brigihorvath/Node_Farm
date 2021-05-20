@@ -1,6 +1,6 @@
 const fs = require('fs');
 const http = require('http');
-const url = require('url');
+const { URL, URLSearchParams } = require('url');
 
 ////////////////
 ///TEMPLATES
@@ -40,7 +40,8 @@ const replaceTemplates = function (el, template) {
 //////////////////////
 ///SERVER
 const server = http.createServer((req, res) => {
-  const pathName = req.url;
+  const idURL = new URL(req.url, 'http://127.0.0.1:8000');
+  const pathName = idURL.pathname;
 
   //Overview
   if (pathName === '/' || pathName === '/overview') {
@@ -50,12 +51,17 @@ const server = http.createServer((req, res) => {
     const cards = dataObj.map((el) => replaceTemplates(el, tempCard)).join('');
     const overView = tempOverview.replace(/{%PRODUCTCARDS%}/, cards);
     res.end(overView);
+
     //Product
   } else if (pathName === '/product') {
     res.writeHead(200, {
       'Content-type': 'text/html',
     });
-    res.end(tempProduct);
+    const productObj = dataObj[idURL.searchParams.get('id')];
+    console.log(productObj);
+
+    const output = replaceTemplates(productObj, tempProduct);
+    res.end(output);
   } else if (pathName === '/api') {
     res.writeHead(200, {
       'Content-type': 'application/json',
