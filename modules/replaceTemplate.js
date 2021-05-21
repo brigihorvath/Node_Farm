@@ -7,7 +7,8 @@ module.exports = function (el, template) {
     .replace(/{%PRICE%}/g, el.price)
     .replace(/{%DESCRIPTION%}/g, el.description)
     .replace(/{%NUTRIENTS%}/g, el.nutrients)
-    .replace(/{%ID%}/g, el.id);
+    .replace(/{%ID%}/g, el.id)
+    .replace(/{%SLUG%}/g, el.slug);
 
   if (!el.organic) output = output.replace(/{%NOT-ORGANIC%}/g, 'not-organic');
   return output;

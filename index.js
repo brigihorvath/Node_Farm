@@ -1,7 +1,7 @@
 const fs = require('fs');
 const http = require('http');
 const { URL, URLSearchParams } = require('url');
-
+const slugify = require('slugify');
 const replaceTemplates = require('./modules/replaceTemplate');
 
 ////////////////
@@ -24,6 +24,17 @@ const tempCard = fs.readFileSync(
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
 
+////////////////
+///SLUGS
+const slugs = dataObj.map((product) =>
+  slugify(product.productName, {
+    lower: true,
+  })
+);
+
+//Adding slug to the object element
+dataObj.forEach((element, i) => (element.slug = slugs[i]));
+
 //////////////////////
 ///SERVER
 const server = http.createServer((req, res) => {
@@ -35,19 +46,22 @@ const server = http.createServer((req, res) => {
     res.writeHead(200, {
       'Content-type': 'text/html',
     });
-    const cards = dataObj.map((el) => replaceTemplates(el, tempCard)).join('');
+    const cards = dataObj
+      .map((el, i) => replaceTemplates(el, tempCard))
+      .join('');
     const overView = tempOverview.replace(/{%PRODUCTCARDS%}/, cards);
     res.end(overView);
 
     //Product
-  } else if (pathName === '/product') {
+  } else if (pathName.includes('/product')) {
     res.writeHead(200, {
       'Content-type': 'text/html',
     });
-    const productObj = dataObj[idURL.searchParams.get('id')];
-    console.log(productObj);
-
-    const output = replaceTemplates(productObj, tempProduct);
+    const productName = pathName.replace('/product/', '');
+    const index = slugs.findIndex((el) => el === productName);
+    const productObj2 = dataObj[index];
+    //const productObj = dataObj[idURL.searchParams.get('id')];
+    const output = replaceTemplates(productObj2, tempProduct);
     res.end(output);
   } else if (pathName === '/api') {
     res.writeHead(200, {
