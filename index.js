@@ -2,6 +2,8 @@ const fs = require('fs');
 const http = require('http');
 const { URL, URLSearchParams } = require('url');
 
+const replaceTemplates = require('./modules/replaceTemplate');
+
 ////////////////
 ///TEMPLATES
 const tempOverview = fs.readFileSync(
@@ -21,21 +23,6 @@ const tempCard = fs.readFileSync(
 ///API data
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const dataObj = JSON.parse(data);
-
-const replaceTemplates = function (el, template) {
-  let output = template
-    .replace(/{%PRODUCTNAME%}/g, el.productName)
-    .replace(/{%IMAGE%}/g, el.image)
-    .replace(/{%FROM%}/g, el.from)
-    .replace(/{%QUANTITY%}/g, el.quantity)
-    .replace(/{%PRICE%}/g, el.price)
-    .replace(/{%DESCRIPTION%}/g, el.description)
-    .replace(/{%NUTRIENTS%}/g, el.nutrients)
-    .replace(/{%ID%}/g, el.id);
-
-  if (!el.organic) output = output.replace(/{%NOT-ORGANIC%}/g, 'not-organic');
-  return output;
-};
 
 //////////////////////
 ///SERVER
